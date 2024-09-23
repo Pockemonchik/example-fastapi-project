@@ -1,0 +1,2 @@
+class UserMongoSchemaNotFound(Exception):
+    pass
