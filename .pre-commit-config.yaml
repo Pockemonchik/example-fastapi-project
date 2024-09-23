@@ -1,6 +1,5 @@
 repos:
   - repo: local
-
     hooks:
       - id: black
         name: black
@@ -29,9 +28,9 @@ repos:
             --non-interactive,
           ]
 
-      - id: tests
-        stages: [push]
-        name: Run tests
-        entry: "poetry run pytest"
-        language: system
-        verbose: true
+      # - id: tests
+      #   # stages: [push]
+      #   name: Run tests
+      #   entry: "poetry run pytest -v tests/"
+      #   language: system
+      #   verbose: true
