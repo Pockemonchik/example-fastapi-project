@@ -28,9 +28,9 @@ repos:
             --non-interactive,
           ]
 
-      # - id: tests
-      #   # stages: [push]
-      #   name: Run tests
-      #   entry: "poetry run pytest -v tests/"
-      #   language: system
-      #   verbose: true
+      - id: pytest
+        name: pytest
+        description: "Run tests with pytest"
+        entry: dir
+        language: system
+        types: [python]
