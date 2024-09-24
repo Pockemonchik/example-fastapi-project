@@ -1,4 +1,4 @@
-from src.core.db import get_mongo_database
+from src.core.db_mongo import get_mongo_database
 from src.users.service import UserMongoService
 
 

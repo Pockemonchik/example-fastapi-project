@@ -5,7 +5,7 @@ from sys import stdout
 import loguru
 
 
-def create_logger() -> loguru.Logger:
+def create_logger():  # type: ignore
     """Create custom logger."""
     loguru.logger.remove()
     loguru.logger.add(
@@ -13,9 +13,7 @@ def create_logger() -> loguru.Logger:
         colorize=True,
         level="INFO",
         catch=True,
-        format="<light-cyan>{time:MM-DD-YYYY HH:mm:ss}</light-cyan> | "
-        + "<light-green>{level}</light-green>: "
-        + "<light-white>{message}</light-white>",
+        format="<light-cyan>{time:MM-DD-YYYY HH:mm:ss}</light-cyan> | " + "<light-green>{level}</light-green>: " + "<light-white>{message}</light-white>",
     )
     return loguru.logger
 

@@ -5,7 +5,9 @@ from fastapi.testclient import TestClient
 from pymongo import MongoClient
 from pymongo.database import Database
 from pytest import MonkeyPatch
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.db_postgres import AsyncPostgresDatabaseManager
 from src.main import app
 
 
@@ -25,3 +27,30 @@ def mongodb(monkeypatch: MonkeyPatch) -> Iterator[Database]:
     yield database
 
     mongo_client.drop_database("exaple_app_test")
+
+
+# @pytest.fixture(autouse=True, scope="session")
+# async def prepare_postgres_database():
+#     db = AsyncPostgresDatabaseManager(
+#         url="postgresql+asyncpg://example_app:example_app@127.0.0.1:5436/",
+#         echo=True,
+#     )
+#     async with test_db_manager.engine.begin() as conn:
+#         await conn.run_sync(Base.metadata.create_all)
+#     yield
+#     # async with test_db_manager.engine.begin() as conn:
+#     #     await conn.run_sync(Base.metadata.drop_all)
+
+
+@pytest.fixture(scope="session")
+def test_db_manager() -> AsyncPostgresDatabaseManager:
+    db = AsyncPostgresDatabaseManager(
+        url="postgresql+asyncpg://example_app:example_app@127.0.0.1:5436/example_app",
+        echo=True,
+    )
+    return db
+
+
+@pytest.fixture(scope="session")
+def postgres_async_session(test_db_manager) -> AsyncSession:
+    return test_db_manager.get_scoped_session()

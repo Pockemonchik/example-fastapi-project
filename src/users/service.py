@@ -38,7 +38,7 @@ class UserMongoService:
         return sorted(useres, key=lambda x: (days_order.get(x.day), x.time))
 
     def create(self, user_request: UserMongoCreateOrUpdateSchema) -> UserMongoSchema:
-        document = user_request.dict()
+        document = user_request.model_dump()
         result = self._collection.insert_one(document)
 
         return self.get(result.inserted_id)
@@ -51,7 +51,7 @@ class UserMongoService:
         user.coach = user_request.coach
         user.description = user_request.description
 
-        new_values = user.dict()
+        new_values = user.model_dump()
         del new_values["id"]
 
         self._collection.update_one({"_id": ObjectId(user_id)}, {"$set": new_values})

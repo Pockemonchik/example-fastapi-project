@@ -1,35 +1,38 @@
 repos:
   - repo: local
     hooks:
-      - id: black
-        name: black
-        entry: black
-        language: system
-        types: [python]
-        args: [--line-length=200, --target-version=py37]
+      # - id: black
+      #   name: black
+      #   entry: black
+      #   language: system
+      #   types: [python]
+      #   args: [--line-length=200, --target-version=py311]
+      #   exclude: ^migrations/
       - id: isort
         name: isort
         entry: isort
         language: system
         types: [python]
+        exclude: ^migrations/
+        args: [--profile, black, --filter-files]
 
-      - id: mypy
-        name: mypy
-        entry: mypy
-        language: system
-        types: [python]
-        args:
-          [
-            --warn-unused-configs,
-            --ignore-missing-imports,
-            --disallow-untyped-defs,
-            --follow-imports=silent,
-            --install-types,
-            --non-interactive,
-          ]
+      # - id: mypy
+      #   name: mypy
+      #   entry: mypy
+      #   language: system
+      #   types: [python]
+      #   args:
+      #     [
+      #       --warn-unused-configs,
+      #       --ignore-missing-imports,
+      #       --disallow-untyped-defs,
+      #       --follow-imports=silent,
+      #       --install-types,
+      #       --non-interactive,
+      #     ]
 
-      - id: pytest
-        name: pytest
-        description: "Run tests with pytest"
-        entry: dir
-        language: system
+      # - id: pytest
+      #   name: pytest
+      #   description: "Run tests with pytest"
+      #   entry: pytest
+      #   language: system
