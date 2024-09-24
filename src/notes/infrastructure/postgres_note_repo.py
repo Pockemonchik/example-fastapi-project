@@ -38,9 +38,9 @@ class NotePostgresRepository(INoteRepository):
         else:
             return None
 
-    async def add_one(self, data: Note) -> Note | Any:
+    async def add_one(self, new_note: Note) -> Note | Any:
 
-        new_note_model = NoteModel(**vars(data))
+        new_note_model = NoteModel(**vars(new_note))
         await self.session.add(new_note_model)  # type: ignore
         await self.session.commit()
         await self.session.close()

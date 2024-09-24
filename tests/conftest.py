@@ -29,20 +29,7 @@ def mongodb(monkeypatch: MonkeyPatch) -> Iterator[Database]:
     mongo_client.drop_database("exaple_app_test")
 
 
-# @pytest.fixture(autouse=True, scope="session")
-# async def prepare_postgres_database():
-#     db = AsyncPostgresDatabaseManager(
-#         url="postgresql+asyncpg://example_app:example_app@127.0.0.1:5436/",
-#         echo=True,
-#     )
-#     async with test_db_manager.engine.begin() as conn:
-#         await conn.run_sync(Base.metadata.create_all)
-#     yield
-#     # async with test_db_manager.engine.begin() as conn:
-#     #     await conn.run_sync(Base.metadata.drop_all)
-
-
-@pytest.fixture(scope="session")
+@pytest.fixture
 def test_db_manager() -> AsyncPostgresDatabaseManager:
     db = AsyncPostgresDatabaseManager(
         url="postgresql+asyncpg://example_app:example_app@127.0.0.1:5436/example_app",
@@ -51,6 +38,6 @@ def test_db_manager() -> AsyncPostgresDatabaseManager:
     return db
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def postgres_async_session(test_db_manager) -> AsyncSession:
     return test_db_manager.get_scoped_session()

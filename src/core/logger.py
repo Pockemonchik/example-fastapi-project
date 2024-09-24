@@ -13,7 +13,9 @@ def create_logger():  # type: ignore
         colorize=True,
         level="INFO",
         catch=True,
-        format="<light-cyan>{time:MM-DD-YYYY HH:mm:ss}</light-cyan> | " + "<light-green>{level}</light-green>: " + "<light-white>{message}</light-white>",
+        format="<light-cyan>{time:MM-DD-YYYY HH:mm:ss}</light-cyan> | "
+        + "<light-green>{level}</light-green>: "
+        + "<light-white>{message}</light-white>",
     )
     return loguru.logger
 

@@ -11,7 +11,7 @@ class Note:
         content: str,
         create_date: datetime.datetime,
         last_change_date: datetime.datetime,
-        tags: List[str],
+        tags: List[str] | None = None,
     ) -> None:
         self.id = note_id
         self.owner_id = owner_id
