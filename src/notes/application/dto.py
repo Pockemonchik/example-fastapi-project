@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 
 class CreateNoteDTO(BaseModel):
-    note_id: int
     owner_id: int
     header: str
     content: str
@@ -27,3 +26,7 @@ class NoteDTO(BaseModel):
 class ChangeContentDTO(BaseModel):
     note_id: Optional[str] = None
     content: str
+
+
+class CreateTagDTO(BaseModel):
+    name: str

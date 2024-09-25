@@ -1,47 +1,48 @@
 from typing import Any, List
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
+from src.notes.application.dto import CreateNoteDTO
 from src.notes.domain.note import Note
 from src.notes.domain.note_repo import INoteRepository
-from src.notes.infrastructure.note_model import NoteModel
+from src.notes.infrastructure.models.note_model import NoteModel
 
 
 class NotePostgresRepository(INoteRepository):
     model = NoteModel
 
-    def __init__(self, session: async_scoped_session[AsyncSession]):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
     async def get_one(self, id: int) -> Note | Any:
-        obj = await self.session.get(self.model, id)  # type: ignore
+        obj = await self.session.get(
+            self.model,
+            id,
+            options=[joinedload(NoteModel.tags)],
+        )  # type: ignore
         await self.session.commit()
         if obj == None:
             await self.session.close()
             return None
         else:
-            print(type(obj))
-            print(type(self.session))
             await self.session.close()
             return obj.to_domain()
 
     async def get_all(self) -> List[Note] | None:
-        stmt = select(self.model)  # type: ignore
+        stmt = select(self.model).options(joinedload(NoteModel.tags))  # type: ignore
         obj = await self.session.execute(stmt)
         await self.session.close()
-        print(type(obj))
-        print(type(self.session))
         if obj:
-            note_list = [row[0].to_domain() for row in obj.all()]
+            note_list = [row[0].to_domain() for row in obj.unique().all()]
             return note_list
         else:
             return None
 
-    async def add_one(self, new_note: Note) -> Note | Any:
-
-        new_note_model = NoteModel(**vars(new_note))
-        await self.session.add(new_note_model)  # type: ignore
+    async def add_one(self, new_note: CreateNoteDTO) -> Note | Any:
+        new_note_model = NoteModel(**new_note.model_dump())
+        self.session.add(new_note_model)  # type: ignore
         await self.session.commit()
         await self.session.close()
         return new_note_model.to_domain()

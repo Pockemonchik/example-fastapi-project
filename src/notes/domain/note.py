@@ -1,6 +1,8 @@
 import datetime
 from typing import List
 
+from src.notes.domain.tag import Tag
+
 
 class Note:
     def __init__(
@@ -11,7 +13,7 @@ class Note:
         content: str,
         create_date: datetime.datetime,
         last_change_date: datetime.datetime,
-        tags: List[str] | None = None,
+        tags: List[Tag] | None = None,
     ) -> None:
         self.id = note_id
         self.owner_id = owner_id

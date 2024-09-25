@@ -43,6 +43,7 @@ all: lint audit tests
 
 dev: python -m src.main
 
-makemigrations: alembic revision --autogenerate  
+makemigrations: alembic revision --autogenerate
+  
 migrate: alembic upgrade head
 ###
