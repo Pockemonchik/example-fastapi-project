@@ -1,19 +1,29 @@
 import os
 
-from kink import di
+from dependency_injector import containers, providers
 
 from src.core.db_postgres import AsyncPostgresDatabaseManager
 from src.notes.application.note_service import NoteService
-from src.notes.domain.note_repo import INoteRepository
 from src.notes.infrastructure.postgres_note_repo import NotePostgresRepository
 
 
-def bootstrap_di() -> None:
+class Container(containers.DeclarativeContainer):
+
+    wiring_config = containers.WiringConfiguration(modules=["src.notes.controllers"])  # or "users" in your case
+
+    # Define configuration
+    config = providers.Configuration()
+
     db = AsyncPostgresDatabaseManager(
-        url=os.environ.get("DB_URL", "locahost"),
+        url=os.environ.get("DB_URL", "postgresql+asyncpg://example_app:example_app@127.0.0.1:5436/example_app"),
         echo=bool(os.environ.get("DB_ECHO", False)),
     )
-    repository = NotePostgresRepository(session=db.get_scoped_session())
+    async_session = providers.Factory(
+        db.get_scoped_session,
+    )
 
-    di[INoteRepository] = repository
-    di[NoteService] = NoteService(note_repo=repository)
+    repository = providers.Factory(
+        NotePostgresRepository,
+        session=async_session,
+    )
+    service = providers.Factory(NoteService, note_repo=repository)

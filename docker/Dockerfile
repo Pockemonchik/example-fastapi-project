@@ -24,5 +24,5 @@ RUN python -m pip install --no-cache-dir poetry\
 # copy project
 COPY . .
 ENV PYTHONPATH /usr/src/app/src
-ENTRYPOINT ["sh", "./docker/entrypoint.sh"]
+ENTRYPOINT ["sh", "entrypoint.sh"]
 # 

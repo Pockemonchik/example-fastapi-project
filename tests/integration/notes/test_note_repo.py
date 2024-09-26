@@ -1,5 +1,3 @@
-import datetime
-
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 
@@ -45,8 +43,6 @@ async def test_can_add_one_note(postgres_async_session: async_scoped_session[Asy
         "owner_id": 1,
         "header": "header",
         "content": "content",
-        "create_date": datetime.datetime.now(),
-        "last_change_date": datetime.datetime.now(),
         "tags": [],
     }
 

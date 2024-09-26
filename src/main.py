@@ -7,10 +7,22 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 
 from src.core.errors import APIErrorMessage, DomainError, RepositoryError, ResourceNotFound
+from src.notes.bootstrap import Container
+from src.notes.controllers import router as notes_router
 from src.users.controllers import router as users_router
 
-app = FastAPI()
-app.include_router(users_router)
+
+def create_app() -> FastAPI:
+    container = Container()
+    container.config.giphy.api_key.from_env("GIPHY_API_KEY")
+
+    app = FastAPI()
+    app.include_router(users_router)
+    app.include_router(notes_router)
+    return app
+
+
+app = create_app()
 
 
 @app.exception_handler(DomainError)

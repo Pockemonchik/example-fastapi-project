@@ -2,6 +2,7 @@ from typing import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from pymongo import MongoClient
 from pymongo.database import Database
 from pytest import MonkeyPatch
@@ -14,6 +15,12 @@ from src.main import app
 @pytest.fixture()
 def test_client() -> TestClient:
     return TestClient(app)
+
+
+@pytest.fixture(scope="module")
+async def async_test_client():
+    async with AsyncClient(app=app, base_url="http://localhost:8000") as client:
+        yield client
 
 
 @pytest.fixture()

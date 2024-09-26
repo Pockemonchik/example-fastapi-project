@@ -1,10 +1,13 @@
+import json
+
+from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
-from kink import di
 
 from src.core.errors import APIErrorMessage
 from src.notes.application.dto import CreateNoteDTO, NoteDTO
 from src.notes.application.note_service import NoteService
+from src.notes.bootstrap import Container
 
 router = APIRouter()
 
@@ -15,9 +18,10 @@ router = APIRouter()
     responses={400: {"model": APIErrorMessage}, 500: {"model": APIErrorMessage}},
     tags=["notes"],
 )
-async def get_note(request: CreateNoteDTO, note_id: int, service: NoteService = Depends(lambda: di[NoteService])) -> JSONResponse:
-    result = await service.get_one_by_id(id=note_id)
-    return JSONResponse(content=result.model_dump(), status_code=status.HTTP_201_CREATED)
+@inject
+async def get_note(note_id: int, service: NoteService = Depends(Provide[Container.service])) -> JSONResponse:
+    result = await service.get_note_by_id(id=note_id)
+    return JSONResponse(content=json.loads(result.model_dump_json()), status_code=status.HTTP_200_OK)
 
 
 @router.post(
@@ -26,6 +30,9 @@ async def get_note(request: CreateNoteDTO, note_id: int, service: NoteService = 
     responses={400: {"model": APIErrorMessage}, 500: {"model": APIErrorMessage}},
     tags=["notes"],
 )
-async def create_note(request: CreateNoteDTO, service: NoteService = Depends(lambda: di[NoteService])) -> JSONResponse:
-    result = await service.create(request)
-    return JSONResponse(content=result.model_dump(), status_code=status.HTTP_201_CREATED)
+@inject
+async def create_note(
+    request: CreateNoteDTO, service: NoteService = Depends(Provide[Container.service])
+) -> JSONResponse:
+    result = await service.create_note(request)
+    return JSONResponse(content=json.loads(result.model_dump_json()), status_code=status.HTTP_201_CREATED)
