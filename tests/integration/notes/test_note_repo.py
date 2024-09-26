@@ -93,3 +93,31 @@ async def test_can_delete_one_note(postgres_async_session: async_scoped_session[
     # then
     assert type(result) == int
     assert result == 1
+
+
+@pytest.mark.usefixtures("seed_notes_db")
+@pytest.mark.asyncio
+async def test_can_filter_by_header(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
+    # given
+    repo = NotePostgresRepository(postgres_async_session)
+
+    # when
+    result = await repo.filter_by_header(header="header")
+
+    # then
+    assert type(result) == list
+    assert len(result) >= 1
+
+
+@pytest.mark.usefixtures("seed_notes_db")
+@pytest.mark.asyncio
+async def test_can_filter_by_tag_name(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
+    # given
+    repo = NotePostgresRepository(postgres_async_session)
+
+    # when
+    result = await repo.filter_by_tag_name(tag_name="test2tag1")
+
+    # then
+    assert type(result) == list
+    assert len(result) == 1

@@ -8,6 +8,7 @@ from src.notes.application.dto import CreateNoteDTO, UpdateNoteDTO
 from src.notes.domain.note import Note
 from src.notes.domain.note_repo import INoteRepository
 from src.notes.infrastructure.models.note_model import NoteModel
+from src.notes.infrastructure.models.tag_model import TagModel
 
 
 class NotePostgresRepository(INoteRepository):
@@ -69,7 +70,7 @@ class NotePostgresRepository(INoteRepository):
             return result
 
     async def delete_one(self, id: int) -> int | None:
-
+        """Удаление заметки, без тэгов"""
         obj = await self.session.get(
             self.model,
             id,
@@ -85,3 +86,29 @@ class NotePostgresRepository(INoteRepository):
             await self.session.commit()
             await self.session.close()
             return id
+
+    async def filter_by_header(self, header: str) -> List[Note] | None:
+        """Фильтр заметок по заголовку"""
+        stmt = select(self.model).filter_by(header=header).options(joinedload(self.model.tags))  # type: ignore
+        obj = await self.session.execute(stmt)
+        await self.session.commit()
+        if obj:
+            note_list = [row[0].to_domain() for row in obj.unique().all()]
+            return note_list
+        else:
+            return None
+
+    async def filter_by_tag_name(self, tag_name: str) -> List[Note] | None:
+        """Фильтр заметок по тэгу"""
+        stmt = (
+            select(self.model)
+            .filter((self.model.tags.any(TagModel.name == tag_name)))
+            .options(joinedload(self.model.tags))
+        )  # type: ignore
+        obj = await self.session.execute(stmt)
+        await self.session.commit()
+        if obj:
+            note_list = [row[0].to_domain() for row in obj.unique().all()]
+            return note_list
+        else:
+            return None
