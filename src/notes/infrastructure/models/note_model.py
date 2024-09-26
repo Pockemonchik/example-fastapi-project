@@ -1,7 +1,8 @@
-import datetime
+from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.base_model import BaseModel
 from src.notes.domain.note import Note
@@ -16,8 +17,8 @@ class NoteModel(BaseModel):
     owner_id: Mapped[int]
     header: Mapped[str]
     content: Mapped[str]
-    create_date: Mapped[datetime.datetime]
-    last_change_date: Mapped[datetime.datetime]
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
     tags: Mapped[Optional[list["TagModel"]]] = relationship(
         secondary="note_tag_association",
         back_populates="notes",
@@ -27,10 +28,10 @@ class NoteModel(BaseModel):
         return Note(
             note_id=self.id,
             owner_id=self.owner_id,
-            create_date=self.create_date,
+            created_at=self.created_at,
             header=self.header,
             content=self.content,
-            last_change_date=self.last_change_date,
+            updated_at=self.updated_at,
             tags=[tag.to_domain() for tag in self.tags],
         )
 

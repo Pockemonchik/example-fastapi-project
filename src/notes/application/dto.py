@@ -1,5 +1,5 @@
 import datetime
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -8,9 +8,7 @@ class CreateNoteDTO(BaseModel):
     owner_id: int
     header: str
     content: str
-    create_date: datetime.datetime
-    last_change_date: datetime.datetime
-    tags: List[str]
+    tags: List[str] | None = None
 
 
 class NoteDTO(BaseModel):
@@ -18,13 +16,14 @@ class NoteDTO(BaseModel):
     owner_id: int
     header: str
     content: str
-    create_date: datetime.datetime
-    last_change_date: datetime.datetime
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
     tags: List[str]
 
 
-class ChangeContentDTO(BaseModel):
-    note_id: Optional[str] = None
+class UpdateNoteDTO(BaseModel):
+    owner_id: int
+    header: str
     content: str
 
 
