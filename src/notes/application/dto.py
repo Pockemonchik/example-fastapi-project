@@ -4,21 +4,23 @@ from typing import List
 from pydantic import BaseModel
 
 
-class CreateNoteDTO(BaseModel):
-    owner_id: int
-    header: str
-    content: str
-    tags: List[str] | None = None
+class CreateTagDTO(BaseModel):
+    name: str
+
+
+class TagDTO(BaseModel):
+    id: int
+    name: str
 
 
 class NoteDTO(BaseModel):
-    note_id: int
+    id: int
     owner_id: int
     header: str
     content: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    tags: List[str]
+    tags: List[TagDTO]
 
 
 class UpdateNoteDTO(BaseModel):
@@ -27,5 +29,8 @@ class UpdateNoteDTO(BaseModel):
     content: str
 
 
-class CreateTagDTO(BaseModel):
-    name: str
+class CreateNoteDTO(BaseModel):
+    owner_id: int
+    header: str
+    content: str
+    tags: List[str] | None = None
