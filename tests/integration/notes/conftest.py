@@ -6,8 +6,8 @@ from src.notes.infrastructure.models.note_model import NoteModel
 from src.notes.infrastructure.models.tag_model import TagModel
 
 
-@pytest.fixture()
-@pytest.mark.asyncio
+@pytest.fixture(scope="module")
+@pytest.mark.asyncio(scope="module")
 async def seed_notes_db(postgres_async_session: AsyncSession) -> None:
     note_data = [
         {
@@ -37,8 +37,10 @@ async def seed_notes_db(postgres_async_session: AsyncSession) -> None:
         exist_data = await session.execute(select(NoteModel).filter(NoteModel.id.in_(id_tuple)))
         result_id_list = []
         result_id_list = [note.id for note in exist_data.scalars().all()]
+        print("result_id_list ", result_id_list)
         for note in note_data:
             if note["id"] not in result_id_list:
+                print("add new", note["id"])
                 model_tags = []
                 for tag in note["tags"]:
                     model_tags.append(TagModel(name=tag))

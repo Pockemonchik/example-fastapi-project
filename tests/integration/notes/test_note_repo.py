@@ -7,7 +7,7 @@ from src.notes.infrastructure.postgres_note_repo import NotePostgresRepository
 
 
 @pytest.mark.usefixtures("seed_notes_db")
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="module")
 async def test_can_get_all_notes(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
     # given
     repo = NotePostgresRepository(postgres_async_session)
@@ -20,7 +20,7 @@ async def test_can_get_all_notes(postgres_async_session: async_scoped_session[As
 
 
 @pytest.mark.usefixtures("seed_notes_db")
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="module")
 async def test_can_get_one_note(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
     # given
     repo = NotePostgresRepository(postgres_async_session)
@@ -34,7 +34,7 @@ async def test_can_get_one_note(postgres_async_session: async_scoped_session[Asy
 
 
 @pytest.mark.usefixtures("seed_notes_db")
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="module")
 async def test_can_add_one_note(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
     # given
     repo = NotePostgresRepository(postgres_async_session)
@@ -56,7 +56,7 @@ async def test_can_add_one_note(postgres_async_session: async_scoped_session[Asy
 
 
 @pytest.mark.usefixtures("seed_notes_db")
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="module")
 async def test_can_update_one_note(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
     # given
     repo = NotePostgresRepository(postgres_async_session)
@@ -78,7 +78,7 @@ async def test_can_update_one_note(postgres_async_session: async_scoped_session[
 
 
 @pytest.mark.usefixtures("seed_notes_db")
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="module")
 async def test_can_delete_one_note(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
     # given
     repo = NotePostgresRepository(postgres_async_session)
@@ -92,13 +92,18 @@ async def test_can_delete_one_note(postgres_async_session: async_scoped_session[
 
 
 @pytest.mark.usefixtures("seed_notes_db")
-@pytest.mark.asyncio
-async def test_can_filter_by_header(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
+@pytest.mark.asyncio(scope="module")
+async def test_can_filter_by_fields(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
     # given
     repo = NotePostgresRepository(postgres_async_session)
 
     # when
-    result = await repo.filter_by_header(header="header")
+    result = await repo.filter_by_field(
+        {
+            "header": "header",
+            "content": "content",
+        }
+    )
 
     # then
     assert type(result) == list
@@ -106,7 +111,7 @@ async def test_can_filter_by_header(postgres_async_session: async_scoped_session
 
 
 @pytest.mark.usefixtures("seed_notes_db")
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="module")
 async def test_can_filter_by_tag_name(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
     # given
     repo = NotePostgresRepository(postgres_async_session)

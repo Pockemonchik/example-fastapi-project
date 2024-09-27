@@ -45,8 +45,8 @@ class NoteService:
         result = await self.note_repo.delete_one(id=id)
         return result
 
-    async def get_notes_by_header(self, header: str) -> List[Note] | None:
-        notes = await self.note_repo.filter_by_header(header)
+    async def get_notes_by_filter(self, params: dict) -> List[Note] | None:
+        notes = await self.note_repo.filter_by_field(params)
         note_dto_list = [self.note_entity_to_dto(note_entity_obj) for note_entity_obj in notes]
         return note_dto_list
 

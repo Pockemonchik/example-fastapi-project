@@ -27,7 +27,7 @@ class INoteRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def filter_by_header(self, header: str) -> List[Note] | None:
+    async def filter_by_field(self, header: str) -> List[Note] | None:
         raise NotImplementedError
 
     @abstractmethod

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from src.notes.application.dto import CreateNoteDTO, UpdateNoteDTO
+from src.notes.domain.errors import NoteErrorNotFound
 from src.notes.domain.note import Note
 from src.notes.domain.note_repo import INoteRepository
 from src.notes.infrastructure.models.note_model import NoteModel
@@ -27,7 +28,7 @@ class NotePostgresRepository(INoteRepository):
         await self.session.commit()
         if obj == None:
             await self.session.close()
-            return None
+            raise NoteErrorNotFound((f"Note with id={id} was not found!"))
         else:
             await self.session.close()
             return obj.to_domain()
@@ -60,7 +61,7 @@ class NotePostgresRepository(INoteRepository):
         )  # type: ignore
         if obj == None:
             await self.session.close()
-            return None
+            raise NoteErrorNotFound((f"Note with id={id} was not found!"))
         else:
             for name, value in note_update.model_dump().items():
                 setattr(obj, name, value)
@@ -79,7 +80,7 @@ class NotePostgresRepository(INoteRepository):
         await self.session.commit()
         if obj == None:
             await self.session.close()
-            return None
+            raise NoteErrorNotFound((f"Note with id={id} was not found!"))
         else:
             # obj.tags = []
             await self.session.delete(obj)
@@ -87,9 +88,14 @@ class NotePostgresRepository(INoteRepository):
             await self.session.close()
             return id
 
-    async def filter_by_header(self, header: str) -> List[Note] | None:
-        """Фильтр заметок по заголовку"""
-        stmt = select(self.model).filter_by(header=header).options(joinedload(self.model.tags))  # type: ignore
+    async def filter_by_field(self, params: dict) -> List[Note] | None:
+        """Фильтр любому поллю кроме тэгов"""
+        filters = []
+        print("params", params)
+        for key, value in params.items():
+            if value != None:
+                filters.append(getattr(self.model, key) == value)
+        stmt = select(self.model).filter(*filters).options(joinedload(self.model.tags))
         obj = await self.session.execute(stmt)
         await self.session.commit()
         if obj:
