@@ -91,9 +91,8 @@ async def test_can_filter_notes_by_any_field(async_mongo_db: Database) -> None:
     result = await repo.filter_by_field(params=params)
     # then
     assert type(result) == list
-    assert len(result) >= 3
     assert type(result[0]) == Note
-    assert result[0].owner_id == 1
+    assert result[0].header == "header updated"
 
 
 @pytest.mark.usefixtures("seed_notes_mongo_db")

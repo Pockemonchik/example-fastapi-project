@@ -26,7 +26,7 @@ class NoteModel(BaseModel):
 
     def to_domain(self) -> Note:
         return Note(
-            note_id=self.id,
+            id=self.id,
             owner_id=self.owner_id,
             created_at=self.created_at,
             header=self.header,
