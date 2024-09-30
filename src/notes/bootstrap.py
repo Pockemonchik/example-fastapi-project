@@ -48,7 +48,7 @@ class Container(containers.DeclarativeContainer):
         NoteMongoRepository,
         db=async_mongo_db,
     )
-    repository = mongo_repository
+    repository = posgtgres_repository
     # Service inject
     # service = providers.Factory(NoteService, note_repo=posgtgres_repository)
     service = providers.Factory(NoteService, note_repo=repository)

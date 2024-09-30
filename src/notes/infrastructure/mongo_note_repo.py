@@ -71,8 +71,7 @@ class NoteMongoRepository(INoteRepository):
 
     async def filter_by_field(self, params: dict) -> List[Note] | None:
         """Фильтр любому поллю кроме тэгов"""
-        print("filter_by_field mongo")
-        # params = {key: value for (key, value) in params.items() if value != None}
+        params = {key: value for (key, value) in params.items() if value != None}
         documents = await self._collection.find(params).to_list()
 
         for document in documents:

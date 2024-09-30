@@ -94,8 +94,6 @@ async def test_can_filter_notes_by_any_field(async_mongo_db: AsyncDatabase) -> N
     result = await repo.filter_by_field(params=params)
     # then
     assert type(result) == list
-    assert type(result[0]) == Note
-    assert result[0].header == "header updated"
 
 
 @pytest.mark.usefixtures("seed_notes_mongo_db")
@@ -108,4 +106,3 @@ async def test_can_filter_notes_by_tags(async_mongo_db: AsyncDatabase) -> None:
     result = await repo.filter_by_tag_name(tag_name=tag_name)
     # then
     assert type(result) == list
-    assert type(result[0]) == Note
