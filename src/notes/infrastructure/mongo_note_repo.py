@@ -7,12 +7,21 @@ from src.notes.application.dto import CreateNoteDTO, UpdateNoteDTO
 from src.notes.domain.errors import NoteError, NoteErrorNotFound
 from src.notes.domain.note import Note
 from src.notes.domain.note_repo import INoteRepository
+from src.notes.domain.tag import Tag
 
 
 class NoteMongoRepository(INoteRepository):
 
     def __init__(self, db: Database):
         self._collection = db.get_collection("notes")
+
+    @staticmethod
+    def document_to_domain(document: dict):
+        note = Note(**document)
+        if "tags" in document.keys():
+            tags = [Tag(tag_id=None, name=tag_name) for tag_name in note.tags]
+            note.tags = tags
+        return note
 
     async def get_one(self, id: int) -> Note | Any:
         """Получение заметки по id"""
@@ -23,7 +32,7 @@ class NoteMongoRepository(INoteRepository):
 
         document["id"] = str(document["_id"])
         del document["_id"]
-        return Note(**document)
+        return self.document_to_domain(document)
 
     async def get_all(self) -> List[Note] | None:
         """Получение всех заметок"""
@@ -33,7 +42,7 @@ class NoteMongoRepository(INoteRepository):
             document["id"] = str(document["_id"])
             del document["_id"]
 
-        return [Note(**document) for document in documents]
+        return [self.document_to_domain(document) for document in documents]
 
     async def add_one(self, new_note: CreateNoteDTO) -> Note | Any:
         """Добавление заметки, без тэгов"""
@@ -48,7 +57,7 @@ class NoteMongoRepository(INoteRepository):
         """Обновление заметки, без тэгов"""
         new_values = {"$set": note_update.model_dump()}
         result = await self._collection.update_one({"_id": id}, new_values)
-        if result.deleted_count == 1:
+        if result.modified_count == 1:
             return await self.get_one(id=id)
         else:
             raise NoteError(f"err when del")
@@ -66,7 +75,7 @@ class NoteMongoRepository(INoteRepository):
             document["id"] = str(document["_id"])
             del document["_id"]
 
-        return [Note(**document) for document in documents]
+        return [self.document_to_domain(document) for document in documents]
 
     async def filter_by_tag_name(self, tag_name: str) -> List[Note] | None:
         """Фильтр заметок по тэгу"""
@@ -76,4 +85,4 @@ class NoteMongoRepository(INoteRepository):
             document["id"] = str(document["_id"])
             del document["_id"]
 
-        return [Note(**document) for document in documents]
+        return [self.document_to_domain(document) for document in documents]

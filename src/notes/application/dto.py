@@ -9,12 +9,12 @@ class CreateTagDTO(BaseModel):
 
 
 class TagDTO(BaseModel):
-    id: int
+    id: int | None = None
     name: str
 
 
 class NoteDTO(BaseModel):
-    id: int
+    id: int | str
     owner_id: int
     header: str
     content: str

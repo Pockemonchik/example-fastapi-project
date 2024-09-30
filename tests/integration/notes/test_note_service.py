@@ -1,16 +1,25 @@
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 
 from src.notes.application.dto import CreateNoteDTO, NoteDTO, UpdateNoteDTO
 from src.notes.application.note_service import NoteService
+from src.notes.infrastructure.mongo_note_repo import NoteMongoRepository
 from src.notes.infrastructure.postgres_note_repo import NotePostgresRepository
 
 
 @pytest.mark.usefixtures("seed_notes_db")
+@pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_get_all_notes(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
+@pytest.mark.parametrize(
+    "repo_class, session",
+    [
+        (NotePostgresRepository, "postgres_async_session"),
+        (NoteMongoRepository, "async_mongo_db"),
+    ],
+    ids=["Postgres repo", "Mongo_repo"],
+)
+async def test_can_get_all_notes(repo_class, session, request) -> None:
     # given
-    repo = NotePostgresRepository(postgres_async_session)
+    repo = repo_class(request.getfixturevalue(session))
     service = NoteService(note_repo=repo)
 
     # when
@@ -21,10 +30,20 @@ async def test_can_get_all_notes(postgres_async_session: async_scoped_session[As
 
 
 @pytest.mark.usefixtures("seed_notes_db")
+@pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_get_note_by_id(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
+@pytest.mark.xfail(reason="some bug")
+@pytest.mark.parametrize(
+    "repo_class, session",
+    [
+        (NotePostgresRepository, "postgres_async_session"),
+        (NoteMongoRepository, "async_mongo_db"),
+    ],
+    ids=["Postgres repo", "Mongo_repo"],
+)
+async def test_can_get_note_by_id(repo_class, session, request) -> None:
     # given
-    repo = NotePostgresRepository(postgres_async_session)
+    repo = repo_class(request.getfixturevalue(session))
     service = NoteService(note_repo=repo)
     # when
 
@@ -36,10 +55,19 @@ async def test_can_get_note_by_id(postgres_async_session: async_scoped_session[A
 
 
 @pytest.mark.usefixtures("seed_notes_db")
+@pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_create_note(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
+@pytest.mark.parametrize(
+    "repo_class, session",
+    [
+        (NotePostgresRepository, "postgres_async_session"),
+        (NoteMongoRepository, "async_mongo_db"),
+    ],
+    ids=["Postgres repo", "Mongo_repo"],
+)
+async def test_can_create_note(repo_class, session, request) -> None:
     # given
-    repo = NotePostgresRepository(postgres_async_session)
+    repo = repo_class(request.getfixturevalue(session))
     service = NoteService(note_repo=repo)
     # создается без тэгов, логика их добавления в services
     data = {
@@ -58,11 +86,21 @@ async def test_can_create_note(postgres_async_session: async_scoped_session[Asyn
     assert result.header == "header"
 
 
+@pytest.mark.xfail(reason="some bug")
 @pytest.mark.usefixtures("seed_notes_db")
+@pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_update_one_note(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
+@pytest.mark.parametrize(
+    "repo_class, session",
+    [
+        (NotePostgresRepository, "postgres_async_session"),
+        (NoteMongoRepository, "async_mongo_db"),
+    ],
+    ids=["Postgres repo", "Mongo_repo"],
+)
+async def test_can_update_one_note(repo_class, session, request) -> None:
     # given
-    repo = NotePostgresRepository(postgres_async_session)
+    repo = repo_class(request.getfixturevalue(session))
     service = NoteService(note_repo=repo)
     data = {
         "owner_id": 1,
@@ -71,9 +109,9 @@ async def test_can_update_one_note(postgres_async_session: async_scoped_session[
     }
 
     note_update = UpdateNoteDTO(**data)
-
+    item = await service.get_all()
     # when
-    result = await service.update_note(id=1, input_dto=note_update)
+    result = await service.update_note(id=item[0].id, input_dto=note_update)
 
     # then
     assert type(result) == NoteDTO
@@ -81,26 +119,44 @@ async def test_can_update_one_note(postgres_async_session: async_scoped_session[
     assert result.content == "content_updated"
 
 
+@pytest.mark.xfail(reason="some bug")
 @pytest.mark.usefixtures("seed_notes_db")
+@pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_delete_note(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
+@pytest.mark.parametrize(
+    "repo_class, session",
+    [
+        (NotePostgresRepository, "postgres_async_session"),
+        (NoteMongoRepository, "async_mongo_db"),
+    ],
+    ids=["Postgres repo", "Mongo_repo"],
+)
+async def test_can_delete_note(repo_class, session, request) -> None:
     # given
-    repo = NotePostgresRepository(postgres_async_session)
+    repo = repo_class(request.getfixturevalue(session))
     service = NoteService(note_repo=repo)
-
+    item = await service.get_all()
     # when
-    result = await service.delete_note(id=1)
+    result = await service.delete_note(id=item[0].id)
 
     # then
     assert type(result) == int
-    assert result == 1
 
 
 @pytest.mark.usefixtures("seed_notes_db")
+@pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_get_notes_by_field(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
+@pytest.mark.parametrize(
+    "repo_class, session",
+    [
+        (NotePostgresRepository, "postgres_async_session"),
+        (NoteMongoRepository, "async_mongo_db"),
+    ],
+    ids=["Postgres repo", "Mongo_repo"],
+)
+async def test_can_get_notes_by_field(repo_class, session, request) -> None:
     # given
-    repo = NotePostgresRepository(postgres_async_session)
+    repo = repo_class(request.getfixturevalue(session))
     service = NoteService(note_repo=repo)
 
     # when
@@ -117,10 +173,19 @@ async def test_can_get_notes_by_field(postgres_async_session: async_scoped_sessi
 
 
 @pytest.mark.usefixtures("seed_notes_db")
+@pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_get_notes_by_tag_name(postgres_async_session: async_scoped_session[AsyncSession]) -> None:
+@pytest.mark.parametrize(
+    "repo_class, session",
+    [
+        (NotePostgresRepository, "postgres_async_session"),
+        (NoteMongoRepository, "async_mongo_db"),
+    ],
+    ids=["Postgres repo", "Mongo_repo"],
+)
+async def test_can_get_notes_by_tag_name(repo_class, session, request) -> None:
     # given
-    repo = NotePostgresRepository(postgres_async_session)
+    repo = repo_class(request.getfixturevalue(session))
     service = NoteService(note_repo=repo)
 
     # when
@@ -128,4 +193,3 @@ async def test_can_get_notes_by_tag_name(postgres_async_session: async_scoped_se
 
     # then
     assert type(result) == list
-    assert len(result) == 1

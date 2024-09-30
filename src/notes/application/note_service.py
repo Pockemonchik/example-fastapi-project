@@ -17,7 +17,9 @@ class NoteService:
 
     @staticmethod
     def note_entity_to_dto(note_entity_obj: Note) -> NoteDTO:
-        tag_names = [TagDTO(**vars(tag)) for tag in note_entity_obj.tags]
+        tag_names = []
+        if note_entity_obj.tags:
+            tag_names = [TagDTO(**vars(tag)) for tag in note_entity_obj.tags]
         note_dict = vars(note_entity_obj)
         note_dict["tags"] = tag_names
         note_dto = NoteDTO(**note_dict)

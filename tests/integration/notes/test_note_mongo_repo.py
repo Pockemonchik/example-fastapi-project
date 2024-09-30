@@ -17,6 +17,7 @@ async def test_can_get_all_notes(async_mongo_db: Database) -> None:
 
     # then
     assert len(result) >= 3
+    assert type(result[0]) == Note
 
 
 @pytest.mark.usefixtures("seed_notes_mongo_db")
