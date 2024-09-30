@@ -90,6 +90,7 @@ class NotePostgresRepository(INoteRepository):
 
     async def filter_by_field(self, params: dict) -> List[Note] | None:
         """Фильтр любому поллю кроме тэгов"""
+        print("filter_by_field postgres")
         filters = []
         for key, value in params.items():
             if value != None:

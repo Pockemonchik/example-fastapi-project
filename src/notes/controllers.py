@@ -20,7 +20,7 @@ router = APIRouter()
     tags=["notes"],
 )
 @inject
-async def get_note(note_id: int, service: NoteService = Depends(Provide[Container.service])) -> JSONResponse:
+async def get_note(note_id: int | str, service: NoteService = Depends(Provide[Container.service])) -> JSONResponse:
     result = await service.get_note_by_id(id=note_id)
     return JSONResponse(content=json.loads(result.model_dump_json()), status_code=status.HTTP_200_OK)
 
@@ -47,7 +47,7 @@ async def create_note(
 )
 @inject
 async def update_note(
-    request: UpdateNoteDTO, note_id: int, service: NoteService = Depends(Provide[Container.service])
+    request: UpdateNoteDTO, note_id: int | str, service: NoteService = Depends(Provide[Container.service])
 ) -> JSONResponse:
     result = await service.update_note(id=note_id, input_dto=request)
     return JSONResponse(content=json.loads(result.model_dump_json()), status_code=status.HTTP_201_CREATED)
@@ -59,7 +59,7 @@ async def update_note(
     tags=["notes"],
 )
 @inject
-async def delete_note(note_id: int, service: NoteService = Depends(Provide[Container.service])) -> JSONResponse:
+async def delete_note(note_id: int | str, service: NoteService = Depends(Provide[Container.service])) -> JSONResponse:
     result = await service.delete_note(id=note_id)
     return JSONResponse(content=(result), status_code=status.HTTP_200_OK)
 

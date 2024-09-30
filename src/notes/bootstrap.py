@@ -33,7 +33,7 @@ class Container(containers.DeclarativeContainer):
 
     # Mongo inject
 
-    async_mongo_client = providers.Singleton(
+    async_mongo_client = providers.Factory(
         AsyncMongoClient,
         "mongodb://localhost:27017/",
     )
@@ -48,7 +48,7 @@ class Container(containers.DeclarativeContainer):
         NoteMongoRepository,
         db=async_mongo_db,
     )
-
+    repository = mongo_repository
     # Service inject
     # service = providers.Factory(NoteService, note_repo=posgtgres_repository)
-    service = providers.Factory(NoteService, note_repo=mongo_repository)
+    service = providers.Factory(NoteService, note_repo=repository)

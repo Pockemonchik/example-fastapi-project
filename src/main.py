@@ -14,17 +14,18 @@ from src.users.controllers import router as users_router
 
 
 def create_app() -> FastAPI:
-    container = Container()
-    container.config.giphy.api_key.from_env("GIPHY_API_KEY")
-
     app = FastAPI()
     app.include_router(users_router)
     app.include_router(notes_router)
+
+    container = Container()
+    container.config.giphy.api_key.from_env("GIPHY_API_KEY")
     app.container = container
     return app
 
 
 app = create_app()
+print("app.container", app.container)
 
 
 @app.exception_handler(DomainError)

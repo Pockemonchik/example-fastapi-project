@@ -1,15 +1,22 @@
 from typing import Iterator
 
+import nest_asyncio
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from pymongo import AsyncMongoClient, MongoClient
+from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.database import Database
 from pytest import MonkeyPatch
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.db_postgres import AsyncPostgresDatabaseManager
 from src.main import app
+from src.notes.application.note_service import NoteService
+from src.notes.infrastructure.mongo_note_repo import NoteMongoRepository
+from src.notes.infrastructure.postgres_note_repo import NotePostgresRepository
+
+nest_asyncio.apply()
 
 
 @pytest.fixture()
@@ -19,8 +26,39 @@ def test_client() -> TestClient:
 
 @pytest.fixture(scope="module")
 async def async_test_client():
-    async with AsyncClient(app=app, base_url="http://localhost:8000") as client:
-        yield client
+    db = AsyncPostgresDatabaseManager(
+        url="postgresql+asyncpg://example_app:example_app@127.0.0.1:5436/example_app",
+        echo=True,
+    )
+    async_session = db.get_scoped_session()
+
+    posgtgres_repository = NotePostgresRepository(session=async_session)
+
+    service = NoteService(note_repo=posgtgres_repository)
+    app.container.service.override(service)
+    with app.container.repository.override(posgtgres_repository):
+        async with AsyncClient(app=app, base_url="http://localhost:8000") as client:
+            yield client
+
+
+@pytest.fixture(scope="module")
+async def async_test_client_mongo():
+    async_mongo_client = AsyncMongoClient("mongodb://localhost:27017/")
+
+    async_mongo_db = AsyncDatabase(
+        client=async_mongo_client,
+        name="exaple_app_test",
+    )
+
+    mongo_repository = NoteMongoRepository(
+        db=async_mongo_db,
+    )
+
+    service = NoteService(note_repo=mongo_repository)
+    app.container.service.override(service)
+    with app.container.repository.override(mongo_repository):
+        async with AsyncClient(app=app, base_url="http://localhost:8000") as client:
+            yield client
 
 
 @pytest.fixture()
