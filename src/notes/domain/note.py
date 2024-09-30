@@ -7,7 +7,7 @@ from src.notes.domain.tag import Tag
 class Note:
     def __init__(
         self,
-        note_id: int,
+        id: int,
         owner_id: int,
         header: str,
         content: str,
@@ -15,7 +15,7 @@ class Note:
         updated_at: datetime.datetime,
         tags: List[Tag] | None = None,
     ) -> None:
-        self.id = note_id
+        self.id = id
         self.owner_id = owner_id
         self.created_at = created_at
         self.header = header

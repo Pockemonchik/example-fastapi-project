@@ -3,7 +3,7 @@ from typing import Iterator
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-from pymongo import MongoClient
+from pymongo import AsyncMongoClient, MongoClient
 from pymongo.database import Database
 from pytest import MonkeyPatch
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,6 +34,18 @@ def mongodb(monkeypatch: MonkeyPatch) -> Iterator[Database]:
     yield database
 
     mongo_client.drop_database("exaple_app_test")
+
+
+@pytest.fixture(scope="module")
+def async_mongo_db() -> Iterator[Database]:
+
+    async_mongo_client: AsyncMongoClient = AsyncMongoClient("mongodb://localhost:27017/")
+
+    database = async_mongo_client["exaple_app_test"]
+
+    yield database
+
+    # mongo_client.drop_database("exaple_app_test")
 
 
 @pytest.fixture(scope="module")

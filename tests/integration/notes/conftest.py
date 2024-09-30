@@ -1,4 +1,7 @@
+from datetime import datetime
+
 import pytest
+from pymongo.database import Database
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -47,3 +50,45 @@ async def seed_notes_db(postgres_async_session: AsyncSession) -> None:
                 note["tags"] = model_tags
                 session.add(NoteModel(**note))
         await session.commit()
+
+
+@pytest.fixture(scope="module")
+@pytest.mark.asyncio(scope="module")
+async def seed_notes_mongo_db(async_mongo_db: Database) -> list[dict[str, str]]:
+    note_data = [
+        {
+            "owner_id": 1,
+            "header": "test1header",
+            "content": "test1content",
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+            "tags": ["test1tag1", "test1tag2"],
+        },
+        {
+            "owner_id": 1,
+            "header": "test2header",
+            "content": "test2content",
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+            "tags": ["test2tag1", "test2tag2"],
+        },
+        {
+            "owner_id": 1,
+            "header": "test3header",
+            "content": "test3content",
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+            "tags": [],
+        },
+    ]
+    # exist_data = await async_mongo_db["notes"].find({}).to_list()
+    # exist_data = 1
+    # note_data = None
+    # if exist_data:
+    await async_mongo_db["notes"].insert_many(note_data)
+    print("saved modgo docs")
+    for document in note_data:
+        document["id"] = str(document["_id"])
+        del document["_id"]
+
+    return note_data  # type: ignore
