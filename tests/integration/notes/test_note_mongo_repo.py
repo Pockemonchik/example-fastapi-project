@@ -1,5 +1,5 @@
 import pytest
-from pymongo.database import Database
+from pymongo.asynchronous.database import AsyncDatabase
 
 from src.notes.application.dto import CreateNoteDTO, UpdateNoteDTO
 from src.notes.domain.note import Note
@@ -8,7 +8,7 @@ from src.notes.infrastructure.mongo_note_repo import NoteMongoRepository
 
 @pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_get_all_notes(async_mongo_db: Database) -> None:
+async def test_can_get_all_notes(async_mongo_db: AsyncDatabase) -> None:
     # given
     repo = NoteMongoRepository(async_mongo_db)
 
@@ -22,7 +22,7 @@ async def test_can_get_all_notes(async_mongo_db: Database) -> None:
 
 @pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_add_one_note(async_mongo_db: Database) -> None:
+async def test_can_add_one_note(async_mongo_db: AsyncDatabase) -> None:
     # given
     repo = NoteMongoRepository(async_mongo_db)
     # создается без тэгов, логика их добавления в services
@@ -44,7 +44,7 @@ async def test_can_add_one_note(async_mongo_db: Database) -> None:
 
 @pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_delete_one_note(async_mongo_db: Database) -> None:
+async def test_can_delete_one_note(async_mongo_db: AsyncDatabase) -> None:
     # given
     repo = NoteMongoRepository(async_mongo_db)
     result = await async_mongo_db["notes"].find({"header": "header inserted"}).to_list()
@@ -59,7 +59,7 @@ async def test_can_delete_one_note(async_mongo_db: Database) -> None:
 
 @pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_update_one_note(async_mongo_db: Database) -> None:
+async def test_can_update_one_note(async_mongo_db: AsyncDatabase) -> None:
     # given
     repo = NoteMongoRepository(async_mongo_db)
     # создается без тэгов, логика их добавления в services
@@ -81,7 +81,7 @@ async def test_can_update_one_note(async_mongo_db: Database) -> None:
 
 @pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_filter_notes_by_any_field(async_mongo_db: Database) -> None:
+async def test_can_filter_notes_by_any_field(async_mongo_db: AsyncDatabase) -> None:
     # given
     repo = NoteMongoRepository(async_mongo_db)
     # создается без тэгов, логика их добавления в services
@@ -98,7 +98,7 @@ async def test_can_filter_notes_by_any_field(async_mongo_db: Database) -> None:
 
 @pytest.mark.usefixtures("seed_notes_mongo_db")
 @pytest.mark.asyncio(scope="module")
-async def test_can_filter_notes_by_tags(async_mongo_db: Database) -> None:
+async def test_can_filter_notes_by_tags(async_mongo_db: AsyncDatabase) -> None:
     # given
     repo = NoteMongoRepository(async_mongo_db)
     tag_name = "test1tag1"

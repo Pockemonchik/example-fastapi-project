@@ -20,6 +20,7 @@ def create_app() -> FastAPI:
     app = FastAPI()
     app.include_router(users_router)
     app.include_router(notes_router)
+    app.container = container
     return app
 
 
