@@ -1,6 +1,6 @@
 # Example FastApi app
 
-Quick project description
+Hexagonal architecture fast api app example
 
 ## Table of contents
 
